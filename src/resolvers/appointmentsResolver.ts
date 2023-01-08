@@ -1,15 +1,35 @@
-import { Query, Mutation, Resolver } from "type-graphql";
+import { Query, Mutation, Resolver, Arg, FieldResolver, Root } from "type-graphql";
+import { CreateAppointmentInput } from "../DTO/inputs/createAppointmentInput";
+import { AppointmentModel } from "../DTO/models/appointmentModel";
+import { ConsumerModel } from "../DTO/models/consumerModel";
 
-@Resolver()
+const appointmentsArr: AppointmentModel[] = []
+
+@Resolver(() => AppointmentModel)
 export class AppointmentsResolver {
-    @Query(() => String)
-    async helloWorld() {
-        return 'hello world'
+    @Query(() => [AppointmentModel])
+    async appointments() {
+        return appointmentsArr
     }
 
-    @Mutation(() => Boolean)
-    async createAppointment() {
+    @Mutation(() => AppointmentModel)
+    async createAppointment(@Arg("data", { validate: false }) data: CreateAppointmentInput) {
 
-        return true
+        const appointment = {
+            startsAt: data.startsAt,
+            endsAt: data.endsAt,
+        }
+
+        appointmentsArr.push(appointment)
+
+        return appointment
+    }
+
+    @FieldResolver(() => ConsumerModel)
+    async consumer(@Root() appointmentModel: AppointmentModel) {
+
+        return {
+            name: 'Luan M',
+        }
     }
 }
